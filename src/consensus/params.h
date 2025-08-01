@@ -128,6 +128,9 @@ struct Params {
     /** By default assume that the signatures in ancestors of this block are valid */
     uint256 defaultAssumeValid;
 
+    /** P2Pool parameters */
+    uint256 p2pool_genesis_hash;
+
     /**
      * If true, witness commitments contain a payload equal to a Bitcoin Script solution
      * to the signet challenge. See BIP325.

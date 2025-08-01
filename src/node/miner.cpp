@@ -165,11 +165,23 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
     coinbaseTx.vout.resize(1);
     coinbaseTx.vout[0].scriptPubKey = m_options.coinbase_output_script;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    
+    // Create a new share and add it to the coinbase transaction.
+    CShare share;
+    share.prev_share_hash = share_chain.empty() ? chainparams.GetConsensus().p2pool_genesis_hash : share_chain.back().GetHash();
+    share.merkle_root = BlockMerkleRoot(*pblock);
+    share.timestamp = GetTime();
+    share.bits = pblock->nBits;
+    share.nonce = 0; // This will be updated by the miner.
+
+    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+    ss << share;
+    coinbaseTx.vin[0].scriptSig = CScript() << std::vector<unsigned char>(ss.begin(), ss.end());
+
     Assert(nHeight > 0);
     coinbaseTx.nLockTime = static_cast<uint32_t>(nHeight - 1);
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-    pblocktemplate->vchCoinbaseCommitment = m_chainstate.m_chainman.GenerateCoinbaseCommitment(*pblock, pindexPrev);
+pblocktemplate->vchCoinbaseCommitment = m_chainstate.m_chainman.GenerateCoinbaseCommitment(*pblock, pindexPrev);
 
     LogPrintf("CreateNewBlock(): block weight: %u txs: %u fees: %ld sigops %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
 

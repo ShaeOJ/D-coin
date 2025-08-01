@@ -384,6 +384,10 @@ public:
 /** Context-independent validity checks */
 bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
 
+/** Check if a block is mined via the P2Pool protocol. */
+bool CheckP2Pool(const CBlock& block, BlockValidationState& state);
+
+
 /**
  * Verify a block, including transactions.
  *

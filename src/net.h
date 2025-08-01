@@ -221,6 +221,8 @@ public:
     TransportProtocolType m_transport_type;
     /** BIP324 session id string in hex, if any. */
     std::string m_session_id;
+    /** P2Pool share. */
+    CShare share;
 };
 
 
